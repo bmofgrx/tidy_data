@@ -3,21 +3,20 @@ require(qdap)
 require(dplyr)
 require(plyr)
 
-home <- setwd("https://github.com/tidy_data/")  
-
+home_directory <- setwd("[RESET WITH LOCAL WORKING DIRECTORY]")
 
 # Get data and assign to variables
-activity_labels <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\activity_labels.txt", header = FALSE, stringsAsFactors = FALSE)
-features_labels <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\features.txt", header = FALSE, stringsAsFactors = FALSE)
+activity_labels <- read.table(paste(home_directory,"activity_labels.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
+features_labels <- read.table(paste(home_directory,"features.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
 
-X_test <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\test\\X_test.txt", header = FALSE, stringsAsFactors = FALSE)
-X_train <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\train\\X_train.txt", header = FALSE, stringsAsFactors = FALSE)
+X_test <- read.table(paste(home_directory,"test/X_test.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
+X_train <- read.table(paste(home_directory,"train/X_train.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
 
-subject_test <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\test\\subject_test.txt", header = FALSE, stringsAsFactors = FALSE)
-subject_train <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\train\\subject_train.txt", header = FALSE, stringsAsFactors = FALSE)
+subject_test <- read.table(paste(home_directory,"test/subject_test.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
+subject_train <- read.table(paste(home_directory,"train/subject_train.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
 
-y_test <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\test\\y_test.txt", header = FALSE, stringsAsFactors = FALSE)
-y_train <- read.table("C:\\Users\\Jim\\Downloads\\R\\UCI HAR Dataset\\train\\y_train.txt", header = FALSE, stringsAsFactors = FALSE)
+y_test <- read.table(paste(home_directory,"test/y_test.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
+y_train <- read.table(paste(home_directory,"train/y_train.txt",sep="/"), header = FALSE, stringsAsFactors = FALSE)
 
 subjects <- 1:30
 
@@ -30,13 +29,11 @@ names(y_test) <- "activity"
 names(y_train) <- "activity"
 
 # Grep FEATURES involving MEAN and STDEV
-
 mean_refs <- grep("mean",features_labels$feature,ignore.case=TRUE)
 std_refs <- grep("std",features_labels$feature,ignore.case=TRUE)
 mean_std_refs <- sort(c(mean_refs,std_refs))
 
 # Subset FEATURES using col headers that include MEAN or STD
-
 features_mean_std_labels <- as.vector(features_labels$feature[mean_std_refs])
 
 # Bind related TEST and TRAIN data by column - TEST rows occur first
@@ -47,7 +44,7 @@ train_header <- cbind(subject_train,y_train)
 test_header$activity <- lookup(test_header$activity,activity_labels)
 train_header$activity <- lookup(train_header$activity,activity_labels)
 
-# Merge headers - TEST rows occur first 
+# Merge headers - TEST rows occur first
 header_merged <- rbind(test_header,train_header)
 
 # Subset merged TEST/TRAIN dataset on cols including MEAN/STD - TEST rows occur first
@@ -57,7 +54,6 @@ names(test_train_merged) <- features_mean_std_labels
 test_train_merged <- cbind(header_merged, test_train_merged)
 
 # Calculate means of each variable by subject
-
 test_train_merged_by_subj <- ddply(test_train_merged,.(subject),numcolwise(mean))
 test_train_merged_by_activity <- ddply(test_train_merged,.(activity),numcolwise(mean))
 test_train_merged_by_activity <- select(test_train_merged_by_activity,-subject)
